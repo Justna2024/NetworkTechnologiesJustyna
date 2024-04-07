@@ -1,0 +1,70 @@
+<style>
+    a {
+        display:block;}
+        [href="/"] {
+            color: black;
+    }
+        /* creating class attributes */
+    .mainImg{
+        text-align: center;
+        border: 2px solid black;
+    }
+    .mainTextStyle{
+        color: darkolivegreen;
+        text-align: center;
+        font-family: courier;
+        font-size: 160%;
+        padding: 30px;"
+    }
+    .navBarStyle {
+        display:flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 99%;
+        background-color: lightgreen;
+        padding: 10px;
+        font-family: courier;
+    }
+
+
+    #loginform {
+        margin: auto;
+    display: block;
+    width: fit-content;
+    }
+</style>
+<nav class="navBarStyle"><h4>Library System &#128218;</h4><a href="/">Register</a></nav>
+<div class="mainImg">
+    <img src="librarySystem.jpg" alt="Photoo" width="460" height="200">
+</div>
+
+<h1 class="mainTextStyle" > Welcome to the login screen for the Book Library </h1>
+
+
+<form id="loginform">
+    <input placeholder="username"/>
+    <input type="password" placeholder="password"/>
+    <button type="submit" style="background-color: lightgreen">Log in</button>
+</form>
+<h5 id="responsestatus"></h5>
+<script>
+    let loginform = document.querySelector("#loginform")
+    loginform.addEventListener("submit", async (event)=>{
+        event.preventDefault(); // we are calling this because by default HTML5 has some handeling that it does but we don't utilize it 
+        username = event.target[0].value
+        password = event.target[1].value
+        let response = await fetch("http://localhost:8080/api/auth/login1", {
+            headers: {     "Content-Type": "application/json"   },
+            method: "POST", body: JSON.stringify({ "username":username, "password": password
+            })})
+            let json = await response.json()
+            let responsestatus = document.querySelector("#responsestatus")
+        
+            if (response.ok) {
+                responsestatus.innerHTML = `Logged in successfully. JWT Token for you is: ${json.token}`
+            } else {
+                responsestatus.innerHTML = `Login unsuccessfull`
+
+            }
+    })
+</script>
