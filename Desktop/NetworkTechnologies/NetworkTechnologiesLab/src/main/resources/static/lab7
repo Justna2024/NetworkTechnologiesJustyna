@@ -1,0 +1,14 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from statsmodels.tsa.statespace.sarimax import SARIMAX
+import numpy as np
+from pmdarima import auto_arima
+
+df3 = 'C:\\Users\\Justy\\Desktop\\TimeSeriesAnalysis\\files\\Retail_sales_of_electricity_United_States_monthly.csv'
+data = pd.read_csv(df3,header=3,skiprows=2, names=['Date', 'All Sectors', 'Residential', 'Commercial','Industrial'])
+#print(data) - works 
+
+data['Log All Sectors']=np.log(data['All Sectors'])
+
+data.dropna(inplace=True)
+auto_arima(data['Log All Sectors'],seasonal=True,m=12,trace=True).summary()
