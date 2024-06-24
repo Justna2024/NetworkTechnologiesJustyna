@@ -1,5 +1,6 @@
 package org.example.networktechnologieslab.controller;
 
+import org.example.networktechnologieslab.infrastructure.entity.Book;
 import org.example.networktechnologieslab.infrastructure.entity.Loan;
 import org.example.networktechnologieslab.infrastructure.entity.User;
 import org.example.networktechnologieslab.service.UserService;
@@ -74,6 +75,12 @@ public class UserController {
         return ResponseEntity.ok(id);
     }
 
+    @PutMapping("/update/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<User> updateUser(@RequestBody User updatedUser, @PathVariable long id) {
+        User updated = userService.updateUser(updatedUser, id);
+        return ResponseEntity.ok(updated);
+    }
 
 }
 

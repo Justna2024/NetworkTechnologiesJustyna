@@ -34,6 +34,9 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
+    public void delete(long id){
+        authRepository.deleteById(id);
+    }
 
     // adding so that another user with same name cant exist
     public RegisterResponseDto register(RegisterDto dto){
@@ -43,6 +46,10 @@ public class AuthService {
         }
         User userEntity = new User();
         userEntity.setEmail(dto.getEmail());
+        userEntity.setFirstName(dto.getFirstName());
+        userEntity.setLastName(dto.getLastName());
+        userEntity.setDateOfBirth(dto.getDateOfBirth());
+        userEntity.setStudent(dto.getIsStudent());
         userRepository.save(userEntity);
 
         Auth authEntity = new Auth();
@@ -50,6 +57,8 @@ public class AuthService {
         authEntity.setUsername(dto.getUsername());
         authEntity.setRole(dto.getRole());
         authEntity.setUser(userEntity);
+
+        authEntity.setUserId(userEntity.getUserId());
 
         authRepository.save(authEntity);
 

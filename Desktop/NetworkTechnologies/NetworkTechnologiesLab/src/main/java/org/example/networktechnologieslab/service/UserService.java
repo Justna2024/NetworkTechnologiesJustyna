@@ -3,6 +3,7 @@ package org.example.networktechnologieslab.service;
 import org.example.networktechnologieslab.infrastructure.entity.Book;
 import org.example.networktechnologieslab.infrastructure.entity.Loan;
 import org.example.networktechnologieslab.infrastructure.entity.User;
+import org.example.networktechnologieslab.infrastructure.repository.AuthRepository;
 import org.example.networktechnologieslab.infrastructure.repository.BookRepository;
 import org.example.networktechnologieslab.infrastructure.repository.LoanRepository;
 import org.example.networktechnologieslab.infrastructure.repository.UserRepository;
@@ -24,13 +25,15 @@ public class UserService {
     private final UserRepository userRepository;
     private final LoanRepository loanRepository;
     private final BookRepository bookRepository;
+    private final AuthRepository authRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, LoanRepository loanRepository, BookRepository bookRepository) {
+    public UserService(UserRepository userRepository, LoanRepository loanRepository, BookRepository bookRepository, AuthRepository authRepository) {
         this.userRepository = userRepository;
         this.loanRepository = loanRepository;
 
         this.bookRepository = bookRepository;
+        this.authRepository = authRepository;
     }
 
     public List<User> getAll(){
@@ -46,7 +49,9 @@ public class UserService {
     }
 
     public void delete(long id){
+        authRepository.deleteById(id);
         userRepository.deleteById(id);
+
     }
 
     public Iterable<Loan> getLoanHistory(long userId){return loanRepository.findByUserUserId(userId);}
@@ -72,6 +77,19 @@ public class UserService {
         Long id = useranalysis.getUserId();
 
         return id;
+    }
+    public User updateUser(User updatedUser, long id) {
+
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Book not found"));
+
+        existingUser.setFirstName(updatedUser.getFirstName());
+        existingUser.setLastName(updatedUser.getLastName());
+        existingUser.setEmail(updatedUser.getEmail());
+        existingUser.setStudent(updatedUser.isStudent());
+        existingUser.setDateOfBirth(updatedUser.getDateOfBirth());
+
+        return userRepository.save(existingUser);
     }
 }
 

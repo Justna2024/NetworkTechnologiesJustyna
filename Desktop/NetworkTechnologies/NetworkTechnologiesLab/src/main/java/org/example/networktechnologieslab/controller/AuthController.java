@@ -10,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 // application programming interface that allows for data transfer between applications
 @RestController
@@ -26,11 +23,10 @@ public class AuthController {
         this.authService = authService;
     }
     private final AuthService authService;
-
-    @PostMapping("/register")
     // preauth decides whether the person
     // is allowed to carry out the function that they are requesting
 
+    @PostMapping("/register")
     @PreAuthorize("hasRole('ADMIN')") // only admin can create an account for a person
     public ResponseEntity<RegisterResponseDto> register(@RequestBody RegisterDto requestBody){
         RegisterResponseDto dto = authService.register(requestBody);
@@ -43,5 +39,12 @@ public class AuthController {
         LoginResponseDto dto = authService.login(requestBody);
         return new ResponseEntity(dto, HttpStatus.CREATED);
 
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> delete(@PathVariable long id) {
+        authService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

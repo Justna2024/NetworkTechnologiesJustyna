@@ -1,4 +1,6 @@
 package org.example.networktechnologieslab.service;
+import org.example.networktechnologieslab.controller.datatransferobjects.BorrowDto;
+import org.example.networktechnologieslab.controller.datatransferobjects.ReturnDto;
 import org.example.networktechnologieslab.infrastructure.entity.Book;
 import org.example.networktechnologieslab.infrastructure.entity.Loan;
 import org.example.networktechnologieslab.infrastructure.entity.User;
@@ -33,8 +35,24 @@ public class LoanService {
         return loanRepository.findById(id).orElseThrow(() -> new RuntimeException("Loan not found"));
     }
 
-    public Loan create(Loan loan) {
+    public Loan create(Long bookId, Long userId, Date loanDate, Date dueDate, Date returnDate) {
+
+        Book book = bookService.getOne(bookId);
+        User user = userService.getOne(userId);
+
+        if (book == null || user == null) {
+            throw new RuntimeException("Book or User not found");
+        }
+
+        Loan loan = new Loan();
+        loan.setBook(book);
+        loan.setUser(user);
+        loan.setLoanDate(loanDate);
+        loan.setDueDate(dueDate);
+        loan.setReturnDate(returnDate);
+
         return loanRepository.save(loan);
+
     }
 
     public void delete(long id) {
@@ -62,7 +80,12 @@ public class LoanService {
         }
     }
 
-    public boolean loanBook(Long userId, Long bookId, Date borrowDate) {
+    public boolean loanBook(BorrowDto dto) {
+
+        Long userId = dto.getUserId();
+        Long bookId = dto.getBookId();
+        Date borrowDate = dto.getBorrowDate();
+
         // switching to localdate to be able to calculate return period
         LocalDate loanLocalDate = borrowDate.toLocalDate();
 
@@ -98,8 +121,10 @@ public class LoanService {
 
         return true; // return success status response
     }
-    public boolean returnBook(Long loanId, Date returnDate) {
+    public boolean returnBook(ReturnDto dto) {
         // book is needed to get book id to be able to update the books table in the database
+        Long loanId = dto.getLoanId();
+        Date returnDate = dto.getReturnDate();
         Loan loan = getOne(loanId);
         long bookId = loan.getBook().getBookId();
         Book book = bookService.getOne(bookId);
@@ -114,5 +139,9 @@ public class LoanService {
         bookService.updateBook(book, bookId);
 
         return true;
+    }
+
+    public List<Loan> getByUserId(Long userId) {
+        return loanRepository.findByUser_UserId(userId);
     }
 }

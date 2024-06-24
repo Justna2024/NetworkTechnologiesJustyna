@@ -1,13 +1,18 @@
 package org.example.networktechnologieslab.controller;
 
+import org.example.networktechnologieslab.controller.datatransferobjects.BorrowDto;
+import org.example.networktechnologieslab.controller.datatransferobjects.LoanDto;
+import org.example.networktechnologieslab.controller.datatransferobjects.ReturnDto;
 import org.example.networktechnologieslab.infrastructure.entity.Loan;
 import org.example.networktechnologieslab.service.LoanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
+import java.util.List;
 
 /*
 Mapping is naming endpoints (links ) and defining their properties
@@ -43,13 +48,26 @@ public class LoanController {
         return loanService.getOne(id);
     }
 
+    @GetMapping("/getByUserId")
+    public List<Loan> getByUserId(@RequestParam("userId") Long userId) {
+        return loanService.getByUserId(userId);
+    }
+
     @PostMapping
-    public ResponseEntity<Loan> create(@RequestBody Loan loan) {
-        var newLoan = loanService.create(loan);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Loan> create(@RequestBody LoanDto loanDto) {
+
+
+
+        var newLoan = loanService.create(loanDto.getBookId(), loanDto.getUserId(),
+                loanDto.getLoanDate(), loanDto.getDueDate(), loanDto.getReturnDate());
+
+
         return new ResponseEntity<>(newLoan, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable long id) {
         loanService.delete(id);
         return ResponseEntity.noContent().build();
@@ -57,13 +75,11 @@ public class LoanController {
 
     //borrowing
     @PostMapping("/borrow")
-    public ResponseEntity<?> borrowBook(
-            @RequestParam("userId") Long userId,
-            @RequestParam("bookId") Long bookId,
-            @RequestParam("borrowDate") Date borrowDate
-    ) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> borrowBook(@RequestBody BorrowDto requestBody)
+    {
         // Call the borrow service method to borrow the book
-        boolean success = loanService.loanBook(userId, bookId, borrowDate);
+        boolean success = loanService.loanBook(requestBody);
 
         if (success) {
             return ResponseEntity.ok("Book borrowed successfully");
@@ -72,12 +88,10 @@ public class LoanController {
         }
     }
     @PostMapping("/return")
-    public ResponseEntity<?> returnBook(
-            @RequestParam("loanId") Long loanId,
-            @RequestParam("returnDate") Date returnDate
-    ) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> returnBook(@RequestBody ReturnDto requestBody) {
         // Call the borrow service method to borrow the book
-        boolean success = loanService.returnBook(loanId, returnDate);
+        boolean success = loanService.returnBook(requestBody);
 
         if (success) {
             return ResponseEntity.ok("Book returned successfully");

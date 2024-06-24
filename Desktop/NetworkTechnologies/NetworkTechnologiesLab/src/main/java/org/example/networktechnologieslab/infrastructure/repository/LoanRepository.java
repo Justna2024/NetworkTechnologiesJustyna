@@ -13,4 +13,6 @@ public interface LoanRepository extends CrudRepository<Loan, Long> {
 
     List<Loan> findAll();
     Iterable<Loan> findByUserUserId(Long userId);
+
+    List<Loan> findByUser_UserId(Long userId);
 }

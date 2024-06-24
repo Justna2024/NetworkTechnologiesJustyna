@@ -12,7 +12,6 @@ public class Auth {
 
     @Id
     @Column(name="id")
-    @GeneratedValue(strategy  = GenerationType.IDENTITY)
     private Long userId;
 
     @Column(name="username", unique = true, nullable = false)
